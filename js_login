@@ -1,0 +1,15 @@
+// Show the popup when a button is clicked
+function showPopup(type) {
+    var popup = document.getElementById(type + "Popup");
+    if (popup) {
+        popup.classList.add("show");
+    }
+}
+
+// Close the popup
+function closePopup(type) {
+    var popup = document.getElementById(type + "Popup");
+    if (popup) {
+        popup.classList.remove("show");
+    }
+}
