@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Map with Bicycle Markers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom, #4CAF50, #2E7D32);
+            color: white;
+        }
+        h1 {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        #map {
+            width: 100%;
+            height: 500px;
+            margin: 20px auto;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🚴 Click to Add / Double-Click to Remove Bicycle Markers 🚴</h1>
+    <div id="map"></div>
+
+    <script>
+        console.log("Script Loaded");
+
+        let map;
+        let markers = [];
+
+        function initMap() {
+            console.log("Initializing Map...");
+
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 37.7749, lng: -122.4194 }, // San Francisco
+                zoom: 12,
+            });
+
+            map.addListener("click", function (event) {
+                addMarker(event.latLng);
+            });
+        }
+
+        function addMarker(location) {
+            const position = { lat: location.lat(), lng: location.lng() };
+
+            // Bicycle Icon
+            const bikeIcon = {
+                url: "https://maps.google.com/mapfiles/kml/shapes/cycling.png",
+                scaledSize: new google.maps.Size(40, 40),
+            };
+
+            // Create marker
+            const marker = new google.maps.Marker({
+                position: position,
+                map: map,
+                icon: bikeIcon,
+                title: "Bicycle Spot 🚴"
+            });
+
+            // Double-click event to remove marker
+            marker.addListener("dblclick", function () {
+                marker.setMap(null);
+                markers = markers.filter(m => m !== marker);
+            });
+
+            markers.push(marker);
+        }
+
+        function loadGoogleMaps() {
+            console.log("Loading Google Maps...");
+
+            const apiKey = "AIzaSyCbqqGml3g-QVdgbfgIp8apNth_FP46cZg"; // Replace with your API key
+            const script = document.createElement("script");
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
+            script.async = true;
+            script.defer = true;
+            document.body.appendChild(script);
+        }
+
+        loadGoogleMaps();
+    </script>
+
+</body>
+</html>
