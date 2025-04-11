@@ -8,11 +8,14 @@ from sqlalchemy import create_engine, text
 
 app = Flask(__name__)
 app.secret_key = '1234'
-API_KEY = app.config['API_KEY']
+
+API_KEY = DB_CONFIG['API_KEY']
+Weather_KEY = DB_CONFIG['Weather_KEY']
+GOOGLE_MAPS_API_KEY = DB_CONFIG['GOOGLE_MAPS_KEY']
+
 CONTRACT_NAME = "dublin"
 API_URL = f"https://api.jcdecaux.com/vls/v1/stations?contract={CONTRACT_NAME}&apiKey={API_KEY}"
 
-Weather_KEY = app.config['Weather_KEY']
 LAT, LON = 53.3498, -6.2603  
 Weather_URL = f"https://api.openweathermap.org/data/3.0/onecall?lat={LAT}&lon={LON}&exclude=minutely,hourly,daily,alerts&appid={Weather_KEY}&units=metric"
 
@@ -23,9 +26,8 @@ user_engine = create_engine(f"mysql+pymysql://{DB_CONFIG['USER']}:{DB_CONFIG['PA
 
 
 @app.route('/')
-@app.route('/')
 def index():
-    return render_template("index.html", google_maps_api_key=app.config['GOOGLE_MAPS_API_KEY'])
+    return render_template("index.html", google_maps_api_key=GOOGLE_MAPS_API_KEY)
 
 
 @app.route('/api/stations', methods=['GET'])
@@ -49,6 +51,27 @@ def get_stations():
         return jsonify(stations)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/api/station/<int:station_id>/latest", methods=["GET"])
+def get_latest_station_status(station_id):
+    try:
+        response = requests.get(API_URL)
+        stations_data = response.json()
+        for s in stations_data:
+            if s["number"] == station_id:
+                station = {
+                    "id": s["number"],
+                    "name": s["name"],
+                    "lat": s["position"]["lat"],
+                    "lon": s["position"]["lng"],
+                    "available_bikes": s["available_bikes"],
+                    "available_docks": s["available_bike_stands"]
+                }
+                return jsonify(station)
+        return jsonify({"error": "Station not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 
 @app.route('/api/station/<int:number>/history', methods=['GET'])
