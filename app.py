@@ -5,16 +5,16 @@ import requests
 from datetime import datetime, timedelta
 from sqlalchemy import create_engine, text
 
-API_KEY = "09d08b4a86ab7fc17e0f3b87992c8316feb49a7a"
-CONTRACT_NAME = "dublin"
-API_URL = f"https://api.jcdecaux.com/vls/v1/stations?contract={CONTRACT_NAME}&apiKey={API_KEY}"
-
-Weather_KEY = "5d666bca7461699abf87b1cc5fba8d0c"
-LAT, LON = 53.3498, -6.2603  
-Weather_URL = f"https://api.openweathermap.org/data/3.0/onecall?lat={LAT}&lon={LON}&exclude=minutely,hourly,daily,alerts&appid={Weather_KEY}&units=metric"
 
 app = Flask(__name__)
 app.secret_key = '1234'
+API_KEY = app.config['API_KEY']
+CONTRACT_NAME = "dublin"
+API_URL = f"https://api.jcdecaux.com/vls/v1/stations?contract={CONTRACT_NAME}&apiKey={API_KEY}"
+
+Weather_KEY = app.config['Weather_KEY']
+LAT, LON = 53.3498, -6.2603  
+Weather_URL = f"https://api.openweathermap.org/data/3.0/onecall?lat={LAT}&lon={LON}&exclude=minutely,hourly,daily,alerts&appid={Weather_KEY}&units=metric"
 
 bikes_engine = create_engine(f"mysql+pymysql://{DB_CONFIG['USER']}:{DB_CONFIG['PASSWORD']}@{DB_CONFIG['HOST']}:{DB_CONFIG['PORT']}/{DB_CONFIG['BIKES_DB']}")
 weather_engine = create_engine(f"mysql+pymysql://{DB_CONFIG['USER']}:{DB_CONFIG['PASSWORD']}@{DB_CONFIG['HOST']}:{DB_CONFIG['PORT']}/{DB_CONFIG['WEATHER_DB']}")
@@ -23,8 +23,9 @@ user_engine = create_engine(f"mysql+pymysql://{DB_CONFIG['USER']}:{DB_CONFIG['PA
 
 
 @app.route('/')
-def home():
-    return render_template("index.html")
+@app.route('/')
+def index():
+    return render_template("index.html", google_maps_api_key=app.config['GOOGLE_MAPS_API_KEY'])
 
 
 @app.route('/api/stations', methods=['GET'])
