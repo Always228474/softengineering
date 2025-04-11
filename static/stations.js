@@ -16,6 +16,7 @@ function initMap() {
 
   loadStations();
 }
+window.onload = initMap
 
 function loadStations() {
   fetch("/api/stations")
@@ -128,14 +129,20 @@ function searchStation() {
   );
 
   if (match) {
-    map.setCenter(match.marker.getPosition());
-    map.setZoom(16);
-    infoWindows.forEach((w) => w.close());
-    fetchAndShowHistory(match, match.marker, match.infoWindow);
+    fetch(`/api/station/${match.id}/latest`)
+      .then((res) => res.json())
+      .then((station) => {
+        map.setCenter(match.marker.getPosition());
+        map.setZoom(16);
+        infoWindows.forEach((w) => w.close());
+        fetchAndShowHistory(station, match.marker, match.infoWindow);
+      });
   } else {
-    alert("No matching station found.");
+    alert("❌ No matching station found.");
   }
 }
+
+
 
 function planJourney() {
   const start = document.getElementById("start").value;
