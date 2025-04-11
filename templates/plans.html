@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dublin Bike Plans</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="{{ url_for('static', filename='plans.js') }}" defer></script>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/stations">Stations</a></li>
+            <li><a href="/plans">Plans</a></li>
+            <li><a href="/login">Login</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+
+        <h2 class="section-title">🚲 Subscription Plans</h2>
+        <p style="text-align:center; margin-bottom: 30px;">Smart plan recommendation based on weather and availability.</p>
+
+        <!-- 🔥 Recommendation -->
+        <div class="card recommended-plan">
+            <h3>🔥 Our Recommendation</h3>
+            <p id="recommend-text">Loading recommendation based on current weather...</p>
+        </div>
+
+        <!-- 🌤️ Current Weather -->
+        <div class="card weather-summary">
+            <h3>🌤️ Current Weather</h3>
+            <img id="weather_icon" src="" alt="weather icon" style="width: 50px; display:inline-block;">
+            <p><strong>Temperature:</strong> <span id="temp">-</span>°C</p>
+            <p><strong>Feels like:</strong> <span id="feels_like">-</span>°C</p>
+            <p><strong>Wind:</strong> <span id="wind_speed">-</span> m/s</p>
+            <p><strong>Condition:</strong> <span id="weather_main">-</span> - <span id="weather_desc">-</span></p>
+        </div>
+
+        <!-- 🌡️ Hourly Chart -->
+        <div class="card hourly-chart">
+            <h3>🌡️ Hourly Temperature Trend</h3>
+            <canvas id="weatherChart" width="600" height="300"></canvas>
+        </div>
+
+        <!-- 📅 Forecast -->
+        <div class="card forecast-snippet">
+            <h3>📅 5-Day Forecast</h3>
+            <div id="forecast-preview" class="forecast-grid"></div>
+        </div>
+
+        <!-- 👤 CTA -->
+        <div class="card" style="text-align:center;">
+            <a href="/login"><button class="btn">Create Account</button></a>
+            <a href="/journey"><button class="btn">Plan a Ride</button></a>
+        </div>
+
+    </div>
+
+</body>
+</html>
+
+
