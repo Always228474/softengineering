@@ -123,9 +123,18 @@ function loadHourlyChart() {
 
 function setupPredictionForm() {
     const form = document.getElementById("predict-form");
-    const resultCard = document.getElementById("prediction-result");
+    const modal = document.getElementById("predictModal");
+    const closeBtn = document.querySelector(".modal .close");
 
     if (!form) return;
+
+    // 关闭弹窗事件
+    closeBtn.onclick = () => modal.style.display = "none";
+    window.onclick = (e) => {
+        if (e.target === modal) {
+            modal.style.display = "none";
+        }
+    };
 
     form.addEventListener("submit", function (e) {
         e.preventDefault();
@@ -139,21 +148,23 @@ function setupPredictionForm() {
             .then(data => {
                 if (data.error) {
                     alert("❌ Prediction failed: " + data.error);
-                    resultCard.style.display = "none";
                 } else {
+                    // 更新文本内容
                     document.getElementById("result_station_id").innerText = data.station_id;
                     document.getElementById("result_datetime").innerText = data.datetime;
                     document.getElementById("result_bikes").innerText = data.predicted_bikes;
                     document.getElementById("result_docks").innerText = data.predicted_docks;
                     document.getElementById("result_wind").innerText = data.wind_speed;
-                    resultCard.style.display = "block";
 
-                    // 动态获取历史平均值
+                    // 显示弹窗
+                    modal.style.display = "block";
+
+                    // 获取历史平均值并绘制图
                     fetch(`/api/station/${stationId}/history`)
                         .then(res => res.json())
                         .then(history => {
-                            const avgBikes = history.reduce((sum, h) => sum + h.available_bikes, 0) / history.length;
-                            const avgDocks = history.reduce((sum, h) => sum + h.available_stands, 0) / history.length;
+                            const avgBikes = Math.round(history.reduce((sum, h) => sum + h.available_bikes, 0) / history.length);
+                            const avgDocks = Math.round(history.reduce((sum, h) => sum + h.available_stands, 0) / history.length);
 
                             const predBikes = data.predicted_bikes;
                             const predDocks = data.predicted_docks;
@@ -208,6 +219,10 @@ function setupPredictionForm() {
             });
     });
 }
+
+
+
+
 
 
 
