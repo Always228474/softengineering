@@ -121,6 +121,104 @@ function loadHourlyChart() {
         });
 }
 
+function setupPredictionForm() {
+    const form = document.getElementById("predict-form");
+    const resultCard = document.getElementById("prediction-result");
+
+    if (!form) return;
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const stationId = document.getElementById("station_id").value;
+        const date = document.getElementById("date").value;
+        const time = document.getElementById("time").value;
+
+        fetch(`/predict?station_id=${stationId}&date=${date}&time=${time}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert("❌ Prediction failed: " + data.error);
+                    resultCard.style.display = "none";
+                } else {
+                    document.getElementById("result_station_id").innerText = data.station_id;
+                    document.getElementById("result_datetime").innerText = data.datetime;
+                    document.getElementById("result_bikes").innerText = data.predicted_bikes;
+                    document.getElementById("result_docks").innerText = data.predicted_docks;
+                    document.getElementById("result_wind").innerText = data.wind_speed;
+                    resultCard.style.display = "block";
+
+                    // 动态获取历史平均值
+                    fetch(`/api/station/${stationId}/history`)
+                        .then(res => res.json())
+                        .then(history => {
+                            const avgBikes = history.reduce((sum, h) => sum + h.available_bikes, 0) / history.length;
+                            const avgDocks = history.reduce((sum, h) => sum + h.available_stands, 0) / history.length;
+
+                            const predBikes = data.predicted_bikes;
+                            const predDocks = data.predicted_docks;
+
+                            const bikesColor = predBikes < 5 ? "#e74c3c" : "#3498db";
+                            const docksColor = predDocks < 5 ? "#e74c3c" : "#2ecc71";
+
+                            const ctx = document.getElementById("predictChart").getContext("2d");
+                            if (window.predictChartInstance) {
+                                window.predictChartInstance.destroy();
+                            }
+
+                            window.predictChartInstance = new Chart(ctx, {
+                                type: "bar",
+                                data: {
+                                    labels: ["Available Bikes", "Available Docks"],
+                                    datasets: [
+                                        {
+                                            label: "Prediction",
+                                            data: [predBikes, predDocks],
+                                            backgroundColor: [bikesColor, docksColor],
+                                        },
+                                        {
+                                            label: "Historical Average",
+                                            data: [avgBikes, avgDocks],
+                                            backgroundColor: ["#95a5a6", "#95a5a6"],
+                                        },
+                                    ],
+                                },
+                                options: {
+                                    responsive: true,
+                                    plugins: {
+                                        title: {
+                                            display: true,
+                                            text: "Prediction vs. Historical Average",
+                                        },
+                                    },
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            title: { display: true, text: "Count" },
+                                        },
+                                    },
+                                },
+                            });
+                        });
+                }
+            })
+            .catch(err => {
+                alert("🚨 Something went wrong.");
+                console.error(err);
+            });
+    });
+}
+
+
+
+// 在页面加载完成后初始化预测表单功能
+window.addEventListener("DOMContentLoaded", () => {
+    loadCurrentWeather();
+    loadForecast();
+    loadHourlyChart();
+    setupPredictionForm(); // 👈 加上这个！
+});
+
 // 初始化
 window.addEventListener("DOMContentLoaded", () => {
     loadCurrentWeather();
