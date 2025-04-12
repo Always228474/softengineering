@@ -4,7 +4,9 @@ from config import DB_CONFIG
 import requests
 from datetime import datetime, timedelta
 from sqlalchemy import create_engine, text
-
+import pandas as pd
+import joblib
+import os
 
 app = Flask(__name__)
 app.secret_key = '1234'
@@ -173,23 +175,83 @@ def get_hourly_weather():
 @app.route('/api/future_weather', methods=['GET'])
 def get_future_weather():
     try:
-        with future_engine.connect() as conn:
-            result = conn.execute(text("""
-                SELECT dt, temp_max, temp_min, weather_main
-                FROM daily_weather
-                ORDER BY dt ASC
-                LIMIT 5
-            """))
-            future_data = [
-                {
-                    "date": row[0].strftime("%Y-%m-%d"),
-                    "temp_max": float(row[1]),
-                    "temp_min": float(row[2]),
-                    "weather_main": row[3]
-                }
-                for row in result
-            ]
-        return jsonify(future_data)
+        url = f'https://api.openweathermap.org/data/3.0/onecall?lat={LAT}&lon={LON}&exclude=current,minutely,hourly,alerts&appid={Weather_KEY}&units=metric'
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+
+        daily_data = []
+        for entry in data['list']:
+            dt = datetime.utcfromtimestamp(entry['dt'])
+            if dt.hour == 12:  # 选取每天中午数据
+                daily_data.append({
+                    "date": dt.strftime("%Y-%m-%d"),
+                    "temp": entry["main"]["temp"],
+                    "temp_min": entry["main"]["temp_min"],
+                    "temp_max": entry["main"]["temp_max"],
+                    "humidity": entry["main"]["humidity"],
+                    "weather_main": entry["weather"][0]["main"],
+                    "weather_desc": entry["weather"][0]["description"]
+                })
+                if len(daily_data) >= 5:
+                    break
+
+        return jsonify(daily_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/predict', methods=['GET'])
+def predict_bike_availability():
+    try:
+        # 获取用户输入
+        station_id = request.args.get('station_id', type=int)
+        date_str = request.args.get('date')   # 'YYYY-MM-DD'
+        time_str = request.args.get('time')   # 'HH:MM'
+
+        if not all([station_id, date_str, time_str]):
+            return jsonify({"error": "Missing parameters"}), 400
+
+        # 合成 datetime 对象
+        dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+        hour = dt.hour
+        weekday = dt.weekday()
+        is_weekend = 1 if weekday >= 5 else 0
+
+        # 获取实时天气数据
+        weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={LAT}&lon={LON}&appid={Weather_KEY}&units=metric"
+        response = requests.get(weather_url)
+        if response.status_code != 200:
+            return jsonify({"error": "Failed to get weather data"}), 500
+
+        weather_data = response.json()
+        wind_speed = weather_data['wind']['speed']
+
+        # 构造输入特征
+        input_data = pd.DataFrame([{
+            'hour': hour,
+            'weekday': weekday,
+            'is_weekend': is_weekend,
+            'wind_speed': wind_speed
+        }])
+
+        # 加载模型
+        model_path = os.path.join('models', f'model_station_{station_id}.pkl')
+        if not os.path.exists(model_path):
+            return jsonify({"error": f"Model for station {station_id} not found"}), 404
+
+        model = joblib.load(model_path)
+        prediction = model.predict(input_data)[0]  # [bikes, docks]
+
+        return jsonify({
+            'station_id': station_id,
+            'datetime': dt.strftime("%Y-%m-%d %H:%M"),
+            'predicted_bikes': int(prediction[0]),
+            'predicted_docks': int(prediction[1]),
+            'wind_speed': wind_speed,
+            'hour': hour,
+            'weekday': weekday
+        })
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
