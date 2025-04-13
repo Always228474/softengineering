@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bike Stations & Journey Planner</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+
+  <!-- Chart.js for historical trend chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/stations" class="active">Stations</a></li>
+      <li><a href="/plans">Plans</a></li>
+      <li><a href="/login">Login</a></li>
+    </ul>
+  </nav>
+
+  <!-- Search Bar -->
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search station by name or id" />
+    <button onclick="searchStation()">Search</button>
+  </div>
+
+  <!-- Journey Planner Form -->
+  <div class="journey-form">
+    <input type="text" id="start" placeholder="Starting location...">
+    <input type="text" id="end" placeholder="Destination...">
+    <input type="date" id="date">
+    <input type="time" id="time">
+    <button class="cta-button-outline" onclick="planJourney()">Plan My Journey</button>
+  </div>
+
+  <!-- Map Section -->
+  <section class="map-section">
+    <div id="map-container">
+      <div id="map"></div>
+    </div>
+  </section>
+
+  <!-- JavaScript -->
+  <script src="{{ url_for('static', filename='stations.js') }}"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB1T1gmvuDyF3NqJ-x4Mheb53WtHifkIpk&callback=initMap" async defer></script>
+  <script>
+    window.onload = initMap;  
+  </script>
+</body>
+</html>
+
+
