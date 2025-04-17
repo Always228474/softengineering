@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dublin Bike Plans</title>
+
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="{{ url_for('static', filename='plans.js') }}" defer></script>
+</head>
+<body>
+
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/stations">Stations</a></li>
+            <li><a href="/plans">Plans</a></li>
+            <li><a href="/login">Login</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+
+        <h2 class="section-title">🚲 Subscription Plans</h2>
+        <p style="text-align:center; margin-bottom: 30px;">Smart plan recommendation based on weather and availability.</p>
+
+        <!-- 🔥 Recommendation -->
+        <div class="card recommended-plan">
+            <h3>Our Recommendation</h3>
+            <p id="recommend-text">Loading recommendation based on current weather...</p>
+        </div>
+
+        <!-- 🌤️ Current Weather & 🌡️ Hourly Chart (Side by Side) -->
+        <div class="flex-container">
+            <div class="card weather-summary">
+            <h3>Current Weather</h3>
+            <img id="weather_icon" src="" alt="weather icon" style="width: 50px; display:inline-block;">
+            <p><strong>Temperature:</strong> <span id="temp">-</span>°C</p>
+            <p><strong>Feels like:</strong> <span id="feels_like">-</span>°C</p>
+            <p><strong>Wind:</strong> <span id="wind_speed">-</span> m/s</p>
+            <p><strong>Condition:</strong> <span id="weather_main">-</span> - <span id="weather_desc">-</span></p>
+        </div>
+
+        <div class="card hourly-chart">
+            <h3>Historical hourly temperature trends</h3>
+            <canvas id="weatherChart" width="600" height="300"></canvas>
+        </div>
+        </div>
+
+
+        <!-- 📅 Forecast -->
+        <div class="card forecast-snippet">
+            <h3>📅 5-Day Forecast</h3>
+            <div id="forecast-preview" class="forecast-grid"></div>
+        </div>
+
+    </div><!-- 🔮 Prediction -->
+    <div class="card">
+        <h3>Predict Station Availability</h3>
+        <form id="predict-form">
+            <label for="station_id">Station ID:</label>
+            <input type="number" id="station_id" name="station_id" required>
+    
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
+    
+            <label for="time">Time:</label>
+            <input type="time" id="time" name="time" required>
+    
+            <button type="submit" class="btn">Predict</button>
+        </form>
+    </div>
+
+    <!-- 🔮 Prediction Result Modal -->
+    <div id="predictModal" class="modal">
+        <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>🔮 Prediction Result</h3>
+        <div id="modal-body">
+            <p><strong>Station ID:</strong> <span id="result_station_id"></span></p>
+            <p><strong>Date & Time:</strong> <span id="result_datetime"></span></p>
+            <p><strong>Predicted Bikes:</strong> <span id="result_bikes"></span></p>
+            <p><strong>Predicted Docks:</strong> <span id="result_docks"></span></p>
+            <p><strong>Wind Speed:</strong> <span id="result_wind"></span> m/s</p>
+            <canvas id="predictChart" width="400" height="200" style="margin-top: 20px;"></canvas>
+        </div>
+        </div>
+    </div>
+
+
+    <!-- 👤 CTA -->
+        <div class="card" style="text-align:center;">
+            <a href="/login"><button class="btn">Log in</button></a>
+            <a href="/stations"><button class="btn">Plan a Ride</button></a>
+        </div>
+    
+</body>
+</html>
+
+

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dublin Bike Stations & Weather</title>
+
+    <!-- Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap"defer></script>
+
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/stations">Stations</a></li>
+            <li><a href="/plans">Plans</a></li>
+            <li><a href="/login">Login</a></li>
+        </ul>
+    </nav>
+    
+
+    <header id="hero" class="hero-section">
+        <div class="hero-content">
+            <h1>Find My Bicycle Dublin 🍀</h1>
+            <p>Smart, Green, Convenient Urban Transport</p>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <h2>Why Choose Us?</h2>
+        <div class="feature-list">
+            <div class="feature-box">
+                <img src="{{ url_for('static', filename='cycle.png') }}" alt="Low Carbon">
+                <h3>Low Carbon Travel</h3>
+                <p>Reduce emissions and protect the environment.</p>
+            </div>
+            <div class="feature-box">
+                <img src="{{ url_for('static', filename='city.png') }}" alt="City Commute">
+                <h3>City Commuting</h3>
+                <p>Quick and cost-effective urban transport solution.</p>
+            </div>
+            <div class="feature-box">
+                <img src="{{ url_for('static', filename='life.png') }}" alt="Healthy Living">
+                <h3>Healthy Lifestyle</h3>
+                <p>Stay active with every ride you take.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subscription Plans Section -->
+    <section id="plans" class="plans">
+        <h2>Subscription Plans</h2>
+        <div class="plan-cards">
+            <div class="plan-card">
+                <h3>Pay-as-you-go</h3>
+                <p>Pay only for what you ride. Ideal for occasional users.</p>
+                <p><strong>€1.99 per 30 minutes</strong></p>
+                <a href="/plans">
+                    <button>Subscribe</button>
+                  </a>
+                  
+            </div>
+            <div class="plan-card">
+                <h3>Weekly Plan</h3>
+                <p>Unlimited rides for 7 days. Great for short-term visitors.</p>
+                <p><strong>€29.9/week</strong></p>
+                <a href="/plans">
+                    <button>Subscribe</button>
+                  </a>
+                  
+            </div>
+            <div class="plan-card">
+                <h3>Monthly Plan</h3>
+                <p>Ride every day. Most cost-effective for regular commuters.</p>
+                <p><strong>€79.9/month</strong></p>
+                <a href="/plans">
+                    <button>Subscribe</button>
+                  </a>
+                  
+            </div>
+        </div>
+    </section>
+
+
+    <!-- User Testimonials -->
+    <section id="reviews" class="reviews">
+        <h2>What Our Users Say</h2>
+        <div class="review">
+            <p>“Super convenient! I ride every day to work.”</p>
+            <span>— Emma, Student</span>
+        </div>
+        <div class="review">
+            <p>“No more parking stress. I love the freedom.”</p>
+            <span>— Jack, Developer</span>
+        </div>
+        <div class="review">
+            <p>“Even in rainy Dublin, it’s worth it!”</p>
+            <span>— Aisling, Local Commuter</span>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Contact us at: info@findmybike.ie</p>
+        <p>&copy; 2025 Find My Bicycle Dublin. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
+
+
+
