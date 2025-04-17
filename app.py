@@ -79,8 +79,7 @@ def get_latest_station_status(station_id):
 @app.route('/api/station/<int:number>/history', methods=['GET'])
 def get_station_history(number):
     try:
-        # 默认今天
-        date = "2025-04-05"  # 固定历史数据日期
+        date = "2025-04-05"  
         start_time = datetime.strptime(date, "%Y-%m-%d")
         end_time = start_time + timedelta(days=1)
 
@@ -141,7 +140,6 @@ def get_weather():
 @app.route('/api/weather/hourly', methods=['GET'])
 def get_hourly_weather():
     try:
-        # 默认今天
         date = "2025-04-05"
         start = datetime.strptime(date, "%Y-%m-%d")
         end = start + timedelta(days=1)
@@ -180,44 +178,41 @@ def get_future_weather():
         response.raise_for_status()
         data = response.json()
 
-        daily_data = []
-        for entry in data['list']:
-            dt = datetime.utcfromtimestamp(entry['dt'])
-            if dt.hour == 12:  # 选取每天中午数据
-                daily_data.append({
-                    "date": dt.strftime("%Y-%m-%d"),
-                    "temp": entry["main"]["temp"],
-                    "temp_min": entry["main"]["temp_min"],
-                    "temp_max": entry["main"]["temp_max"],
-                    "humidity": entry["main"]["humidity"],
-                    "weather_main": entry["weather"][0]["main"],
-                    "weather_desc": entry["weather"][0]["description"]
-                })
-                if len(daily_data) >= 5:
-                    break
+        forecast = []
+        for daily in data['daily'][:5]:  
+            forecast.append({
+                "date": datetime.utcfromtimestamp(daily["dt"]).strftime("%Y-%m-%d"),
+                "temp_min": daily["temp"]["min"],
+                "temp_max": daily["temp"]["max"],
+                "humidity": daily["humidity"],
+                "wind_speed": daily["wind_speed"],
+                "pop": daily.get("pop", 0),
+                "weather_main": daily["weather"][0]["main"],
+                "weather_desc": daily["weather"][0]["description"],
+                "weather_icon": daily["weather"][0]["icon"]
+            })
 
-        return jsonify(daily_data)
+        return jsonify(forecast)
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/predict', methods=['GET'])
 def predict_bike_availability():
     try:
-        # 获取用户输入
         station_id = request.args.get('station_id', type=int)
-        date_str = request.args.get('date')   # 'YYYY-MM-DD'
-        time_str = request.args.get('time')   # 'HH:MM'
+        date_str = request.args.get('date')   
+        time_str = request.args.get('time')   
 
         if not all([station_id, date_str, time_str]):
             return jsonify({"error": "Missing parameters"}), 400
 
-        # 合成 datetime 对象
         dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
         hour = dt.hour
         weekday = dt.weekday()
         is_weekend = 1 if weekday >= 5 else 0
 
-        # 获取实时天气数据
         weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={LAT}&lon={LON}&appid={Weather_KEY}&units=metric"
         response = requests.get(weather_url)
         if response.status_code != 200:
@@ -226,21 +221,18 @@ def predict_bike_availability():
         weather_data = response.json()
         wind_speed = weather_data['wind']['speed']
 
-        # 构造输入特征
         input_data = pd.DataFrame([{
             'hour': hour,
             'weekday': weekday,
             'is_weekend': is_weekend,
-            'wind_speed': wind_speed
         }])
 
-        # 加载模型
         model_path = os.path.join('models', f'model_station_{station_id}.pkl')
         if not os.path.exists(model_path):
             return jsonify({"error": f"Model for station {station_id} not found"}), 404
 
         model = joblib.load(model_path)
-        prediction = model.predict(input_data)[0]  # [bikes, docks]
+        prediction = model.predict(input_data)[0]  
 
         return jsonify({
             'station_id': station_id,
@@ -288,5 +280,5 @@ def plans():
     return render_template("plans.html")
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
