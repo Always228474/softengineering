@@ -632,7 +632,6 @@ body {
     color: white;
 }
 
-/* Journey Form 优化 */
 .journey-form {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -680,7 +679,6 @@ body {
     box-shadow: 0 4px 10px rgba(26, 188, 156, 0.2);
 }
 
-/* 地图区域样式 */
 .map-section {
     max-width: 1000px;
     margin: 0 auto 40px;
