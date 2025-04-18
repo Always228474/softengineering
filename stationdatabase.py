@@ -3,7 +3,6 @@ import time
 from datetime import datetime
 from sqlalchemy import create_engine, text
 
-API_KEY = "09d08b4a86ab7fc17e0f3b87992c8316feb49a7a"
 CONTRACT_NAME = "dublin"
 API_URL = f"https://api.jcdecaux.com/vls/v1/stations?contract={CONTRACT_NAME}&apiKey={API_KEY}"
 
